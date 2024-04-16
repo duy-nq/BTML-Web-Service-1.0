@@ -16,6 +16,11 @@ class TimeBase(BaseModel):
     TGBD: datetime
     TGKT: Optional[datetime]
 
+class InfoBase(BaseModel):
+    Username: str
+    HoTen: str = Field(default='master')
+    TenNhom: str = Field(default='db_owner')
+
 class PriceBase(BaseModel):
     ThoiGian: datetime
     DonGia: Decimal = Field(..., alias='DonGia')
