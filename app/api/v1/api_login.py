@@ -6,8 +6,6 @@ from app.core.config import settings
 from app.core.db import engine
 from sqlalchemy import create_engine
 
-
-
 router = APIRouter(tags=['Login'])
 
 @router.get('/login')
