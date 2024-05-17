@@ -13,7 +13,7 @@ class UserBase(BaseModel):
     Gmail: str
 
 class TimeBase(BaseModel):
-    TGBD: datetime
+    TGBD: Optional[datetime]
     TGKT: Optional[datetime]
 
 class InfoBase(BaseModel):
@@ -53,90 +53,9 @@ class DSLK(BaseModel):
     class Config:
         orm_mode = True
 
-class PhanHoi(BaseModel):
-    IdPH: UUID
-    NoiDung: str
-    IdBT: UUID
-
-    class Config:
-        orm_mode = True
-
-class BaoTri(BaseModel):
-    IdBT: UUID
-    IdDSNV: UUID
-    IdDSML: UUID
-    DiemDG: int
-
-    sp_list: list[DSLK] = []
-    feedback: list[PhanHoi] = []
-
-    class Config:
-        orm_mode = True
-
-class DSNV(BaseModel):
-    IdDSNV: UUID
-    IdCTDV: UUID
-    IdNV: UUID
-
-    class Config:
-        orm_mode = True 
-
-class ML_KH(BaseModel):
-    IdMLKH: UUID
-    IdML: UUID
-    IdKH: UUID
-    MaSo: int
-
-    class Config:
-        orm_mode = True 
-
-class DSML(BaseModel):
-    IdDSML: UUID
-    IdCTDV: UUID
-    IdMLKH: UUID
-
-    customer_ac: list[ML_KH] = []
-
-    class Config:
-        orm_mode = True
-
-class CTDV(BaseModel):
-    IdCTDV: UUID
-    IdPhieu: UUID
-    IdML: UUID
-    IdDV: UUID
-    Soluong: int
-    TrangThai: bool
-
-    mechanics: list[DSNV] = []
-    ac_list: DSML
-
-    class Config:
-        orm_mode = True       
-
-class PhieuThongTin(TimeBase):
-    IdPTT: UUID
-    IdKH: UUID
-    LichHen: Optional[datetime]
-    TrangThai: bool
-
-    service_detail: list[CTDV] = []
-
-    class Config:
-        orm_mode = True
-
 class LichLamViec(TimeBase):
     IdLLV: UUID
     IdNV: UUID
-
-    class Config:
-        orm_mode = True
-
-class KhachHang(UserBase):
-    IdKH: UUID
-
-    requests: list[PhieuThongTin] = []
-    customer_ac: list[ML_KH] = []
 
     class Config:
         orm_mode = True
@@ -149,15 +68,57 @@ class NhanVien(UserBase):
     schedules: list[LichLamViec] = []
 
     class Config:
+        orm_mode = True   
+
+class CTDV(BaseModel):
+    IdCTDV: UUID
+    IdPhieu: UUID
+    IdML: UUID
+    IdDV: UUID
+    Soluong: int
+    IdNV: UUID
+
+    mechanic: Optional[NhanVien]
+
+    class Config:
+        orm_mode = True    
+
+class BaoTri(BaseModel):
+    IdBT: UUID
+    IdCT: UUID
+    Serial: str
+    DiemDG: int
+
+    sp_list: list[DSLK] = []
+
+    class Config:
+        orm_mode = True
+
+class PhieuThongTin(TimeBase):
+    IdPhieu: UUID
+    IdKH: UUID
+    LichHen: Optional[datetime]
+    TrangThai: bool
+
+    service_detail: list[CTDV] = []
+
+    class Config:
+        orm_mode = True
+
+class KhachHang(UserBase):
+    IdKH: UUID
+
+    requests: list[PhieuThongTin] = []
+
+    class Config:
         orm_mode = True
 
 class MayLanh(BaseModel):
     IdML: UUID
     Ten: str
-    DonGia: Decimal = Field(..., alias='DonGia')
+    IdCC: UUID
 
     class Config:
-        json_encoder = {Decimal: float}
         orm_mode = True
 
 class LinhKien(BaseModel):

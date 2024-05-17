@@ -17,7 +17,7 @@ class NhanVien(Base):
     TrangThai = Column(Boolean, default=True)
 
     schedules = relationship('LichLamViec', back_populates='mechanic')
-    mechanic_list = relationship('DSNV', back_populates='mechanic')
+    service_detail = relationship('CTDV', back_populates='mechanic')
 
 class LichLamViec(Base):
     __tablename__ = 'LichLamViec'
@@ -41,7 +41,6 @@ class KhachHang(Base):
     Gmail = Column(String, nullable=False)
 
     requests = relationship('PhieuThongTin', back_populates='customer')
-    ac_list = relationship('ML_KH', back_populates='customer')
 
 class PhieuThongTin(Base):
     __tablename__ = 'PhieuThongTin'
@@ -52,6 +51,7 @@ class PhieuThongTin(Base):
     TGKT = Column(DATETIME)
 
     IdKH = Column(UUID, ForeignKey('KhachHang.IdKH'))
+    TrangThai = Column(Boolean)
 
     customer = relationship('KhachHang', back_populates='requests')
     service_detail = relationship('CTDV', back_populates='request')
@@ -62,9 +62,7 @@ class NhaCC(Base):
     IdCC = Column(UUID, primary_key=True)
     Ten = Column(String)
 
-    # List of air conditioners from the supplier
     ac_list = relationship('MayLanh', back_populates='supplier') 
-    # List of spare parts from the supplier
     sp_list = relationship('LK_NCC', back_populates='supplier')
 
 class MayLanh(Base):
@@ -72,25 +70,11 @@ class MayLanh(Base):
 
     IdML = Column(UUID, primary_key=True)
     Ten = Column(String)
-    DonGia = Column(MONEY)
 
     IdCC = Column(UUID, ForeignKey('NhaCC.IdCC'))
 
     supplier = relationship('NhaCC', back_populates='ac_list')
-    ac_list = relationship('ML_KH', back_populates='air_conditioner')
     service_detail = relationship('CTDV', back_populates='air_conditioner')
-
-class ML_KH(Base):
-    __tablename__ = 'ML_KH'
-
-    IdMLKH = Column(UUID, primary_key=True)
-    IdML = Column(UUID, ForeignKey('MayLanh.IdML'))
-    IdKH = Column(UUID, ForeignKey('KhachHang.IdKH'))
-    MaSo = Column(Integer)
-    
-    customer = relationship('KhachHang', back_populates='ac_list')
-    air_conditioner = relationship('MayLanh', back_populates='ac_list')
-    ac_list = relationship('DSML', back_populates='customer_ac')
 
 class LinhKien(Base):
     __tablename__ = 'LinhKien'
@@ -154,48 +138,25 @@ class CTDV(Base):
     IdDV = Column(UUID, ForeignKey('DichVu.IdDV'))
     IdML = Column(UUID, ForeignKey('MayLanh.IdML'))
     Soluong = Column(Integer)
-    TrangThai = Column(Boolean)
+    IdNV = Column(UUID, ForeignKey('NhanVien.IdNV'))
+
 
     air_conditioner = relationship('MayLanh', back_populates='service_detail')
     request = relationship('PhieuThongTin', back_populates='service_detail')
     service = relationship('DichVu', back_populates='service_detail')
-    mechanic_list = relationship('DSNV', back_populates='service_detail')
-    ac_list = relationship('DSML', back_populates='service_detail')
-
-class DSNV(Base):
-    __tablename__ = 'DSNV'
-    
-    IdDSNV = Column(UUID, primary_key=True)
-    IdCTDV = Column(UUID, ForeignKey('CTDV.IdCTDV'))
-    IdNV = Column(UUID, ForeignKey('NhanVien.IdNV'))
-
-    service_detail = relationship('CTDV', back_populates='mechanic_list')
-    mechanic = relationship('NhanVien', back_populates='mechanic_list')
-    maintainance = relationship('BaoTri', back_populates='mechanic_list')
-
-class DSML(Base):
-    __tablename__ = 'DSML'
-    
-    IdDSML = Column(UUID, primary_key=True)
-    IdCTDV = Column(UUID, ForeignKey('CTDV.IdCTDV'))
-    IdMLKH = Column(UUID, ForeignKey('ML_KH.IdML'))
-
-    service_detail = relationship('CTDV', back_populates='ac_list')
-    customer_ac = relationship('ML_KH', back_populates='ac_list')
-    ac_list = relationship('BaoTri', back_populates='air_conditioner')
+    mechanic = relationship('NhanVien', back_populates='service_detail')
+    maintenance = relationship('BaoTri', back_populates='service_detail')
 
 class BaoTri(Base):
     __tablename__ = 'BaoTri'
 
     IdBT = Column(UUID, primary_key=True)
-    IdDSNV = Column(UUID, ForeignKey('DSNV.IdDSNV'))
-    IdDSML = Column(UUID, ForeignKey('DSML.IdDSML'))
+    IdCTDV = Column(UUID, ForeignKey('CTDV.IdCTDV'))
+    Serial = Column(String)
     DiemDG = Column(Integer)
 
-    mechanic_list = relationship('DSNV', back_populates='maintainance')
-    air_conditioner = relationship('DSML', back_populates='ac_list')
-    sp_list = relationship('DSLK', back_populates='maintainance')
-    feedback = relationship('PhanHoi', back_populates='maintainance')
+    sp_list = relationship('DSLK', back_populates='maintenance')
+    service_detail = relationship('CTDV', back_populates='maintenance')
 
 class DSLK(Base):
     __tablename__ = 'DSLK'
@@ -203,17 +164,7 @@ class DSLK(Base):
     IdDSLK = Column(UUID, primary_key=True)
     IdBT = Column(UUID, ForeignKey('BaoTri.IdBT'))
     IdLKCC = Column(UUID, ForeignKey('LK_NCC.IdLKCC'))
-    SoLuong = Column(Integer)
+    DonGia = Column(MONEY)
 
-    maintainance = relationship('BaoTri', back_populates='sp_list')
+    maintenance = relationship('BaoTri', back_populates='sp_list')
     sp_supplier = relationship('LK_NCC', back_populates='sp_list')  
-
-class PhanHoi(Base):
-    __tablename__ = 'PhanHoi'
-
-    IdPH = Column(UUID, primary_key=True)
-    NoiDung = Column(String)
-    
-    IdBT = Column(UUID, ForeignKey('BaoTri.IdBT'))
-
-    maintainance = relationship('BaoTri', back_populates='feedback')
