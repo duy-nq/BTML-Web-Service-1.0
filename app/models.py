@@ -1,16 +1,17 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Unicode
 from sqlalchemy.dialects.mssql import MONEY, DATETIME, UNIQUEIDENTIFIER as UUID
 from sqlalchemy.orm import relationship
+import uuid
 
 from app.core.db import Base
 
 class NhanVien(Base):
     __tablename__ = 'NhanVien'
 
-    IdNV = Column(UUID, primary_key=True)
+    IdNV = Column(UUID, primary_key=True, default=uuid.uuid4)
     CCCD = Column(String, nullable=False)
-    HoTen = Column(String, nullable=False)
-    DiaChi = Column(String, nullable=False)
+    HoTen = Column(Unicode, nullable=False)
+    DiaChi = Column(Unicode, nullable=False)
     SDT = Column(String, nullable=False)
     Gmail = Column(String, nullable=False)
     DiemDG = Column(Integer, default=100)
@@ -22,7 +23,7 @@ class NhanVien(Base):
 class LichLamViec(Base):
     __tablename__ = 'LichLamViec'
 
-    IdLLV = Column(UUID, primary_key=True)
+    IdLLV = Column(UUID, primary_key=True, default=uuid.uuid4)
     TGBD = Column(DATETIME, nullable=False)
     TGKT = Column(DATETIME, nullable=False)
 
@@ -33,10 +34,10 @@ class LichLamViec(Base):
 class KhachHang(Base):
     __tablename__ = 'KhachHang'
 
-    IdKH = Column(UUID, primary_key=True)
+    IdKH = Column(UUID, primary_key=True, default=uuid.uuid4)
     CCCD = Column(String, nullable=False)
-    HoTen = Column(String, nullable=False)
-    DiaChi = Column(String, nullable=False)
+    HoTen = Column(Unicode, nullable=False)
+    DiaChi = Column(Unicode, nullable=False)
     SDT = Column(String, nullable=False)
     Gmail = Column(String, nullable=False)
 
@@ -45,10 +46,10 @@ class KhachHang(Base):
 class PhieuThongTin(Base):
     __tablename__ = 'PhieuThongTin'
 
-    IdPhieu = Column(UUID, primary_key=True)
+    IdPhieu = Column(UUID, primary_key=True, default=uuid.uuid4)
     LichHen = Column(DATETIME)
-    TGBD = Column(DATETIME)
-    TGKT = Column(DATETIME)
+    TGBD = Column(DATETIME, nullable=True, default=None)
+    TGKT = Column(DATETIME, nullable=True, default=None)
 
     IdKH = Column(UUID, ForeignKey('KhachHang.IdKH'))
     TrangThai = Column(Boolean)
@@ -59,8 +60,8 @@ class PhieuThongTin(Base):
 class NhaCC(Base):
     __tablename__ = 'NhaCC'
 
-    IdCC = Column(UUID, primary_key=True)
-    Ten = Column(String)
+    IdCC = Column(UUID, primary_key=True, default=uuid.uuid4)
+    Ten = Column(Unicode)
 
     ac_list = relationship('MayLanh', back_populates='supplier') 
     sp_list = relationship('LK_NCC', back_populates='supplier')
@@ -68,8 +69,8 @@ class NhaCC(Base):
 class MayLanh(Base):
     __tablename__ = 'MayLanh'
 
-    IdML = Column(UUID, primary_key=True)
-    Ten = Column(String)
+    IdML = Column(UUID, primary_key=True, default=uuid.uuid4)
+    Ten = Column(Unicode)
 
     IdCC = Column(UUID, ForeignKey('NhaCC.IdCC'))
 
@@ -79,15 +80,15 @@ class MayLanh(Base):
 class LinhKien(Base):
     __tablename__ = 'LinhKien'
 
-    IdLK = Column(UUID, primary_key=True)
-    Ten = Column(String)
+    IdLK = Column(UUID, primary_key=True, default=uuid.uuid4)
+    Ten = Column(Unicode)
 
     sp_list = relationship('LK_NCC', back_populates='spare_part')
 
 class LK_NCC(Base):
     __tablename__ = 'LK_NCC'
     
-    IdLKCC = Column(UUID, primary_key=True)
+    IdLKCC = Column(UUID, primary_key=True, default=uuid.uuid4)
 
     IdLK = Column(UUID, ForeignKey('LinhKien.IdLK'))
     IdCC = Column(UUID, ForeignKey('NhaCC.IdCC'))
@@ -113,8 +114,8 @@ class LSG_LK(Base):
 class DichVu(Base):
     __tablename__ = 'DichVu'
 
-    IdDV = Column(UUID, primary_key=True)
-    Ten = Column(String)
+    IdDV = Column(UUID, primary_key=True, default=uuid.uuid4)
+    Ten = Column(Unicode)
     DonGia = Column(MONEY)
     KhoiLuong = Column(Float)
 
@@ -133,12 +134,12 @@ class LSG_DV(Base):
 class CTDV(Base):
     __tablename__ = 'CTDV'
 
-    IdCTDV = Column(UUID, primary_key=True)
+    IdCTDV = Column(UUID, primary_key=True, default=uuid.uuid4)
     IdPhieu = Column(UUID, ForeignKey('PhieuThongTin.IdPhieu'))
     IdDV = Column(UUID, ForeignKey('DichVu.IdDV'))
     IdML = Column(UUID, ForeignKey('MayLanh.IdML'))
     Soluong = Column(Integer)
-    IdNV = Column(UUID, ForeignKey('NhanVien.IdNV'))
+    IdNV = Column(UUID, ForeignKey('NhanVien.IdNV'), nullable=True, default=None)
 
 
     air_conditioner = relationship('MayLanh', back_populates='service_detail')
@@ -150,7 +151,7 @@ class CTDV(Base):
 class BaoTri(Base):
     __tablename__ = 'BaoTri'
 
-    IdBT = Column(UUID, primary_key=True)
+    IdBT = Column(UUID, primary_key=True, default=uuid.uuid4)
     IdCTDV = Column(UUID, ForeignKey('CTDV.IdCTDV'))
     Serial = Column(String)
     DiemDG = Column(Integer)
@@ -161,7 +162,7 @@ class BaoTri(Base):
 class DSLK(Base):
     __tablename__ = 'DSLK'
 
-    IdDSLK = Column(UUID, primary_key=True)
+    IdDSLK = Column(UUID, primary_key=True, default=uuid.uuid4)
     IdBT = Column(UUID, ForeignKey('BaoTri.IdBT'))
     IdLKCC = Column(UUID, ForeignKey('LK_NCC.IdLKCC'))
     DonGia = Column(MONEY)

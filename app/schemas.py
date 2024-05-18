@@ -60,25 +60,26 @@ class LichLamViec(TimeBase):
     class Config:
         orm_mode = True
 
+class CTDVCreate(BaseModel):
+    IdPhieu: UUID
+    IdML: UUID
+    IdDV: UUID
+    Soluong: int
+
+class CTDV(CTDVCreate):
+    IdCTDV: UUID
+    IdNV: Optional[UUID]
+
+    class Config:
+        orm_mode = True   
+
 class NhanVien(UserBase):
     IdNV: UUID
     DiemDG: int
     TrangThai: bool
 
     schedules: list[LichLamViec] = []
-
-    class Config:
-        orm_mode = True   
-
-class CTDV(BaseModel):
-    IdCTDV: UUID
-    IdPhieu: UUID
-    IdML: UUID
-    IdDV: UUID
-    Soluong: int
-    IdNV: UUID
-
-    mechanic: Optional[NhanVien]
+    service_detail: list[CTDV] = []
 
     class Config:
         orm_mode = True    
@@ -90,6 +91,14 @@ class BaoTri(BaseModel):
     DiemDG: int
 
     sp_list: list[DSLK] = []
+
+    class Config:
+        orm_mode = True
+
+class PhieuThongTinCreate(BaseModel):
+    IdKH: UUID
+    LichHen: Optional[datetime]
+    TrangThai: bool
 
     class Config:
         orm_mode = True

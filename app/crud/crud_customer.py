@@ -6,3 +6,6 @@ def get_all_khach_hang(db: Session):
 
 def get_khach_hang(db: Session, IdKH: str):
     return db.query(KhachHang).filter(KhachHang.IdKH == IdKH).first()
+
+def get_khach_hang_by_cccd(db: Session, CCCD: str):
+    return db.query(KhachHang).filter(KhachHang.CCCD == CCCD).first()
