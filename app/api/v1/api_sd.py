@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
-from app.schemas import CTDV, CTDVCreate
+from app.schemas import CTDV, CTDVCreate, CTDVForAdmin
 from app.models import CTDV as CTModel
 from app.core.db import get_db
 from app.crud.crud_sd import get_ctdv, get_all_ctdv, get_ctdv_by_phieu
@@ -39,3 +39,19 @@ async def create_ctdv(service: CTDVCreate, db = Depends(get_db)):
     db.refresh(newService)
 
     return newService
+
+@router.put('/ctdv/{id}', response_model=CTDV)
+async def update_ctdv(IdCTDV: str, service: CTDVForAdmin, db = Depends(get_db)):
+    oldService = get_ctdv(db, IdCTDV=IdCTDV)
+    
+    if oldService is None:
+        raise HTTPException(status_code=404, detail="CTDV khong ton tai")
+    
+    try:
+        oldService.IdNV = service.IdNV
+        db.commit()
+        db.refresh(oldService)
+
+        raise HTTPException(status_code=200, detail="Update thanh cong")
+    except IntegrityError as e:
+        raise HTTPException(status_code=500, detail=str(e))

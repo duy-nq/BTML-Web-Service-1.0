@@ -53,15 +53,25 @@ class DSLK(BaseModel):
     class Config:
         orm_mode = True
 
-class LichLamViec(TimeBase):
-    IdLLV: UUID
+class LichLamViecCreate(TimeBase):
     IdNV: UUID
+
+class LichLamViec(LichLamViecCreate):
+    IdLLV: UUID
 
     class Config:
         orm_mode = True
 
 class CTDVCreate(BaseModel):
     IdPhieu: UUID
+    IdML: UUID
+    IdDV: UUID
+    Soluong: int
+
+class CTDVForAdmin(BaseModel):
+    IdNV: UUID
+
+class CTDVForUser(BaseModel):
     IdML: UUID
     IdDV: UUID
     Soluong: int
