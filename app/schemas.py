@@ -44,7 +44,16 @@ class LK_NCC(BaseModel):
         json_encoder = {Decimal: float}
         orm_mode = True
 
-class DSLK(BaseModel):
+class DSLKCreate(BaseModel):
+    IdBT: UUID
+    IdLKCC: UUID
+    SoLuong: int
+
+class DSLKForAdmin(BaseModel):
+    IdLKCC: UUID
+    SoLuong: int
+
+class DSLK(DSLKCreate):
     IdDSLK: UUID
     IdBT: UUID
     IdLKCC: UUID
@@ -94,11 +103,19 @@ class NhanVien(UserBase):
     class Config:
         orm_mode = True    
 
-class BaoTri(BaseModel):
-    IdBT: UUID
-    IdCT: UUID
+class BaoTriCreate(BaseModel):
+    IdCTDV: UUID
     Serial: str
     DiemDG: int
+
+class BaoTriForMechanic(BaseModel):
+    Serial: str
+
+class BaoTriForUser(BaseModel):
+    DiemDG: int
+
+class BaoTri(BaoTriCreate):
+    IdBT: UUID
 
     sp_list: list[DSLK] = []
 

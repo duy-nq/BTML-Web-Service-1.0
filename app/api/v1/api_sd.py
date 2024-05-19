@@ -23,14 +23,6 @@ async def read_ctdv_id(IdCTDV: str, db = Depends(get_db)):
         raise HTTPException(status_code=404, detail="CTDV khong ton tai")
     return service
 
-@router.get('/ctdv/phieu/{id}', response_model=list[CTDV])
-async def read_ctdv_by_phieu(IdPhieu: str, db = Depends(get_db)):
-    service = get_ctdv_by_phieu(db, IdPhieu=IdPhieu)
-    
-    if service is None:
-        raise HTTPException(status_code=404, detail="CTDV khong ton tai")
-    return service
-
 @router.post('/ctdv', response_model=CTDV)
 async def create_ctdv(service: CTDVCreate, db = Depends(get_db)):
     newService = CTModel(IdPhieu=service.IdPhieu, IdDV=service.IdDV, IdML=service.IdML, Soluong=service.Soluong)

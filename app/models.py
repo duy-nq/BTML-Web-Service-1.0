@@ -165,7 +165,7 @@ class DSLK(Base):
     IdDSLK = Column(UUID, primary_key=True, default=uuid.uuid4)
     IdBT = Column(UUID, ForeignKey('BaoTri.IdBT'))
     IdLKCC = Column(UUID, ForeignKey('LK_NCC.IdLKCC'))
-    DonGia = Column(MONEY)
+    SoLuong = Column(Integer, default=1)
 
     maintenance = relationship('BaoTri', back_populates='sp_list')
     sp_supplier = relationship('LK_NCC', back_populates='sp_list')  
