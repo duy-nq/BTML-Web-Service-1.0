@@ -33,7 +33,7 @@ async def create_phieu_thong_tin(request: PhieuThongTinCreate, db = Depends(get_
 
     return newRequest
 
-@router.delete('/phieuthongtin/{id}', response_model=PhieuThongTin)
+@router.delete('/phieuthongtin/{id}')
 async def delete_phieu_thong_tin(IdPhieu: str, db = Depends(get_db)):
     request = get_phieu_thong_tin(db, IdPhieu=IdPhieu)
 
@@ -42,7 +42,6 @@ async def delete_phieu_thong_tin(IdPhieu: str, db = Depends(get_db)):
     else:
         db.delete(request)
         db.commit()
-        db.refresh(request)
 
         raise HTTPException(status_code=200, detail="Xoa phieu thong tin thanh cong")
     

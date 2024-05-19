@@ -71,38 +71,6 @@ class LichLamViec(LichLamViecCreate):
     class Config:
         orm_mode = True
 
-class CTDVCreate(BaseModel):
-    IdPhieu: UUID
-    IdML: UUID
-    IdDV: UUID
-    Soluong: int
-
-class CTDVForAdmin(BaseModel):
-    IdNV: UUID
-
-class CTDVForUser(BaseModel):
-    IdML: UUID
-    IdDV: UUID
-    Soluong: int
-
-class CTDV(CTDVCreate):
-    IdCTDV: UUID
-    IdNV: Optional[UUID]
-
-    class Config:
-        orm_mode = True   
-
-class NhanVien(UserBase):
-    IdNV: UUID
-    DiemDG: int
-    TrangThai: bool
-
-    schedules: list[LichLamViec] = []
-    service_detail: list[CTDV] = []
-
-    class Config:
-        orm_mode = True    
-
 class BaoTriCreate(BaseModel):
     IdCTDV: UUID
     Serial: str
@@ -121,6 +89,40 @@ class BaoTri(BaoTriCreate):
 
     class Config:
         orm_mode = True
+
+class CTDVCreate(BaseModel):
+    IdPhieu: UUID
+    IdML: UUID
+    IdDV: UUID
+    SoLuong: int
+
+class CTDVForAdmin(BaseModel):
+    IdNV: UUID
+
+class CTDVForUser(BaseModel):
+    IdML: UUID
+    IdDV: UUID
+    SoLuong: int
+
+class CTDV(CTDVCreate):
+    IdCTDV: UUID
+    IdNV: Optional[UUID]
+
+    maintenance: list[BaoTri] = []
+
+    class Config:
+        orm_mode = True   
+
+class NhanVien(UserBase):
+    IdNV: UUID
+    DiemDG: int
+    TrangThai: bool
+
+    schedules: list[LichLamViec] = []
+    service_detail: list[CTDV] = []
+
+    class Config:
+        orm_mode = True    
 
 class PhieuThongTinCreate(BaseModel):
     IdKH: UUID
@@ -191,3 +193,38 @@ class DichVu(BaseModel):
     class Config:
         json_encoder = {Decimal: float}
         orm_mode = True
+
+class TongTienBase(BaseModel):
+    Ten: str
+    DonGia: Decimal = Field(..., alias='DonGia')
+    SoLuong: int
+    TongTien: Decimal = Field(..., alias='TongTien')
+
+class TongTienDV(TongTienBase):
+    IdDV: UUID
+
+    class Config:
+        json_encoder = {Decimal: float}
+        orm_mode = True
+
+class TongTienLK(TongTienBase):
+    IdLK: UUID
+
+    class Config:
+        json_encoder = {Decimal: float}
+        orm_mode = True
+
+class requestData(BaseModel):
+    vnp_Version:str
+    vnp_Command:str
+    vnp_TmnCode:str
+    vnp_Amount:str
+    vnp_CurrCode:str
+    vnp_TxnRef:str
+    vnp_OrderInfo:str
+    vnp_OrderType:str
+    vnp_Locale:str
+    vnp_BankCode:Optional[str]=None
+    vnp_CreateDate:str = datetime.now().strftime('%Y%m%d%H%M%S')
+    vnp_IpAddr:str
+    vnp_ReturnUrl:Optional[str]=None

@@ -138,7 +138,7 @@ class CTDV(Base):
     IdPhieu = Column(UUID, ForeignKey('PhieuThongTin.IdPhieu'))
     IdDV = Column(UUID, ForeignKey('DichVu.IdDV'))
     IdML = Column(UUID, ForeignKey('MayLanh.IdML'))
-    Soluong = Column(Integer)
+    SoLuong = Column(Integer)
     IdNV = Column(UUID, ForeignKey('NhanVien.IdNV'), nullable=True, default=None)
 
 

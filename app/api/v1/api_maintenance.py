@@ -25,9 +25,9 @@ async def read_bt_id(IdBT: str, db = Depends(get_db)):
     return baotri
 
 @router.post('/baotri', response_model=BaoTri)
-async def create_bt(maintenance: BaoTriCreate, db = Depends(get_db)):
+async def create_bt(maintenance: BaoTriCreate, db = Depends(get_db)):   
     try:
-        ac_qty = get_ctdv(db, IdCTDV=maintenance.IdCTDV).Soluong
+        ac_qty = get_ctdv(db, IdCTDV=maintenance.IdCTDV).SoLuong
         bt_qty = len(get_bt_by_ctdv(db, IdCTDV=maintenance.IdCTDV))
     except AttributeError:
         raise HTTPException(status_code=404, detail="Dich vu nay chua duoc tao hoac nhap sai id")

@@ -14,6 +14,7 @@ from app.api.v1.api_sp_supplier import router as lkncc_router
 from app.api.v1.api_supplier import router as nhacungcap_router
 from app.api.v1.api_sp_list import router as dslk_router
 from app.api.v1.api_maintenance import router as baotri_router
+from app.api.v1.api_payment import router as thanhtoan_router
 
 router = APIRouter(prefix='/v1')
 router.include_router(login_router)
@@ -25,6 +26,7 @@ router.include_router(phieuthongtin_router)
 router.include_router(ctdv_router)
 router.include_router(baotri_router)
 router.include_router(dslk_router)
+router.include_router(thanhtoan_router)
 router.include_router(nhacungcap_router)
 router.include_router(linhkien_router)
 router.include_router(lkncc_router)
