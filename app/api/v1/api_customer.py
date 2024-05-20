@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
-from app.schemas import KhachHang
+from app.schemas import KhachHang, KhachHangCreate
 from app.models import KhachHang as KhachHangModel
 from app.core.db import get_db
-from app.crud.crud_customer import get_khach_hang, get_all_khach_hang, get_khach_hang_by_cccd
+from app.crud.crud_customer import get_khach_hang, get_all_khach_hang, get_khach_hang_by_cccd, get_khach_hang_by_gmail
 from app.core.config import settings
 
 router = APIRouter(tags=['KhachHang'])
@@ -23,6 +23,25 @@ async def read_khach_hang_id(IdKH: str, db = Depends(get_db)):
     if khachhang is None:
         raise HTTPException(status_code=404, detail="Khach hang khong ton tai")
     return khachhang
+
+@router.post('/khachhang/singup')
+async def create_khach_hang_singup(khach_hang: KhachHangCreate, db = Depends(get_db)):
+    khachhang = get_khach_hang_by_gmail(db, Gmail=khach_hang.Username)
+
+    if khachhang:
+        return {"message": "Khach hang da ton tai"}
+    
+    newHash = settings.sha256_hash(khach_hang.Password)
+    
+    try:
+        newCustomer = KhachHangModel(HoTen=khach_hang.HoTen, Gmail=khach_hang.Username, MatKhau=newHash)
+        db.add(newCustomer)
+        db.commit()
+        db.refresh(newCustomer)
+
+        return {"message": "Dang ky thanh cong"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post('/khachhang', response_model=KhachHang)
 async def create_khach_hang(khach_hang: KhachHang, db = Depends(get_db)):
@@ -66,6 +85,6 @@ async def delete_khach_hang(IdKH: str, db = Depends(get_db)):
     try:
         db.delete(khachhang)
         db.commit()
-        raise HTTPException(status_code=200, detail="Xoa thanh cong")
+        return {"message": "Xoa thanh cong"}
     except IntegrityError as e:
         raise HTTPException(status_code=404, detail="Khach hang dang duoc su dung")

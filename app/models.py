@@ -9,13 +9,14 @@ class NhanVien(Base):
     __tablename__ = 'NhanVien'
 
     IdNV = Column(UUID, primary_key=True, default=uuid.uuid4)
-    CCCD = Column(String, nullable=False)
+    CCCD = Column(String, nullable=True)
     HoTen = Column(Unicode, nullable=False)
-    DiaChi = Column(Unicode, nullable=False)
-    SDT = Column(String, nullable=False)
+    DiaChi = Column(Unicode, nullable=True)
+    SDT = Column(String, nullable=True)
     Gmail = Column(String, nullable=False)
     DiemDG = Column(Integer, default=100)
-    TrangThai = Column(Boolean, default=True)
+    TrangThai = Column(Boolean, default=False)
+    MatKhau = Column(String, nullable=False)
 
     schedules = relationship('LichLamViec', back_populates='mechanic')
     service_detail = relationship('CTDV', back_populates='mechanic')
@@ -35,11 +36,12 @@ class KhachHang(Base):
     __tablename__ = 'KhachHang'
 
     IdKH = Column(UUID, primary_key=True, default=uuid.uuid4)
-    CCCD = Column(String, nullable=False)
+    CCCD = Column(String, nullable=True)
     HoTen = Column(Unicode, nullable=False)
-    DiaChi = Column(Unicode, nullable=False)
-    SDT = Column(String, nullable=False)
+    DiaChi = Column(Unicode, nullable=True)
+    SDT = Column(String, nullable=True)
     Gmail = Column(String, nullable=False)
+    MatKhau = Column(String, nullable=False)
 
     requests = relationship('PhieuThongTin', back_populates='customer')
 

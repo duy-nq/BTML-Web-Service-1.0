@@ -6,10 +6,10 @@ from uuid import UUID
 
 # Base class for both KhachHang and NhanVien
 class UserBase(BaseModel):
-    CCCD: str
+    CCCD: Optional[str]
     HoTen: str
-    DiaChi: str
-    SDT: str
+    DiaChi: Optional[str]
+    SDT: Optional[str]
     Gmail: str
 
 class TimeBase(BaseModel):
@@ -111,12 +111,21 @@ class CTDV(CTDVCreate):
     maintenance: list[BaoTri] = []
 
     class Config:
-        orm_mode = True   
+        orm_mode = True
 
-class NhanVien(UserBase):
-    IdNV: UUID
+class NhanVienLogin(BaseModel):
+    Username: str
+    Password: str  
+
+class NhanVienSignUp(NhanVienLogin):
+    HoTen: str
+
+class NhanVienCreate(UserBase):
     DiemDG: int
     TrangThai: bool
+
+class NhanVien(NhanVienCreate):
+    IdNV: UUID
 
     schedules: list[LichLamViec] = []
     service_detail: list[CTDV] = []
@@ -142,6 +151,13 @@ class PhieuThongTin(TimeBase):
 
     class Config:
         orm_mode = True
+
+class KhachHangLogin(BaseModel):
+    Username: str
+    Password: str
+
+class KhachHangCreate(KhachHangLogin):
+    HoTen: str
 
 class KhachHang(UserBase):
     IdKH: UUID
@@ -228,3 +244,17 @@ class requestData(BaseModel):
     vnp_CreateDate:str = datetime.now().strftime('%Y%m%d%H%M%S')
     vnp_IpAddr:str
     vnp_ReturnUrl:Optional[str]=None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+class NhanVienInDB(NhanVien):
+    hashed_password: str
+
+class KhachHangInDB(KhachHang):
+    hashed_password: str

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas import NhanVien
+from app.schemas import NhanVien, NhanVienSignUp
 from app.models import NhanVien as NhanVienModel
 from app.core.db import get_db
-from app.crud.crud_mechanic import get_all_nhan_vien, get_nhan_vien, get_nhan_vien_by_cccd
+from app.crud.crud_mechanic import get_all_nhan_vien, get_nhan_vien, get_nhan_vien_by_cccd, get_nhan_vien_by_gmail
 from sqlalchemy.exc import IntegrityError
+from app.core.config import settings
 
 router = APIRouter(tags=['NhanVien'])
 
@@ -17,17 +18,31 @@ async def read_nhan_vien(db = Depends(get_db)):
     
 @router.get('/nhanvien/{id}', response_model=NhanVien)
 async def read_nhan_vien_id(IdNV: str, db = Depends(get_db)):
-    # try:
-    #     nhan_vien = get_nhan_vien(db, IdNV=IdNV)
-    #     return nhan_vien
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=str(e))
-
     nhanvien = get_nhan_vien(db, IdNV=IdNV)
 
     if nhanvien is None:
         raise HTTPException(status_code=404, detail="Nhan vien khong ton tai")
     return nhanvien
+
+@router.post('/nhanvien/singup')
+async def create_nhan_vien_singup(nhan_vien: NhanVienSignUp, db = Depends(get_db)):
+    nhanvien = get_nhan_vien_by_gmail(db, Gmail=nhan_vien.Username)
+
+    if nhanvien:
+        return {"message": "Khach hang da ton tai"}
+    
+    newHash = settings.sha256_hash(nhan_vien.Password)
+    
+    try:
+        newMechanic = NhanVienModel(HoTen=nhan_vien.HoTen, Gmail=nhan_vien.Username, MatKhau=newHash)
+        db.add(newMechanic)
+        db.commit()
+        db.refresh(newMechanic)
+
+        return {"message": "Dang ky thanh cong"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post('/nhanvien', response_model=NhanVien)
 async def create_nhan_vien(nhan_vien: NhanVien, db = Depends(get_db)):

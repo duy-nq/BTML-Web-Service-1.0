@@ -9,3 +9,6 @@ def get_khach_hang(db: Session, IdKH: str):
 
 def get_khach_hang_by_cccd(db: Session, CCCD: str):
     return db.query(KhachHang).filter(KhachHang.CCCD == CCCD).first()
+
+def get_khach_hang_by_gmail(db: Session, Gmail: str):
+    return db.query(KhachHang).filter(KhachHang.Gmail == Gmail).first()

@@ -1,3 +1,5 @@
+import hashlib
+
 class Settings():
     username = 'sa'
     pwd = '123'
@@ -11,5 +13,9 @@ class Settings():
     DEFAULT_PWD = '123'
 
     SQLALCHEMY_DATABASE_URL = f'mssql+pyodbc://{DEFAULT_USERNAME}:{DEFAULT_PWD}@{SERVER}/{DATABASE}?driver={DRIVER}'
+
+    def sha256_hash(self, password):
+        hash = hashlib.sha256(password.encode()).hexdigest()
+        return hash
 
 settings = Settings()

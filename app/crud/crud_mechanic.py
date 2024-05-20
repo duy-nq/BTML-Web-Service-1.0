@@ -9,3 +9,6 @@ def get_nhan_vien(db: Session, IdNV: str):
 
 def get_nhan_vien_by_cccd(db: Session, CCCD: str):
     return db.query(NhanVien).filter(NhanVien.CCCD == CCCD).first()
+
+def get_nhan_vien_by_gmail(db: Session, Gmail: str):
+    return db.query(NhanVien).filter(NhanVien.Gmail == Gmail).first()
