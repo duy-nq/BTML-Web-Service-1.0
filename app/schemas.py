@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from decimal import Decimal
 from uuid import UUID
 
@@ -258,3 +258,6 @@ class NhanVienInDB(NhanVien):
 
 class KhachHangInDB(KhachHang):
     hashed_password: str
+
+class EmailSchema(BaseModel):
+    email: List[EmailStr]

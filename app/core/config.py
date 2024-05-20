@@ -1,5 +1,7 @@
 import hashlib
 
+from fastapi_mail import ConnectionConfig
+
 class Settings():
     username = 'sa'
     pwd = '123'
@@ -11,6 +13,18 @@ class Settings():
 
     DEFAULT_USERNAME = 'sa'
     DEFAULT_PWD = '123'
+
+    conf = ConnectionConfig(
+        MAIL_USERNAME='official.fastservice@gmail.com',
+        MAIL_PASSWORD='yfco ahko pofl yxvo',
+        MAIL_PORT=587,
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
+        MAIL_FROM='official.fastservice@gmail.com',
+        USE_CREDENTIALS=True,
+        VALIDATE_CERTS=True
+    )
 
     SQLALCHEMY_DATABASE_URL = f'mssql+pyodbc://{DEFAULT_USERNAME}:{DEFAULT_PWD}@{SERVER}/{DATABASE}?driver={DRIVER}'
 
