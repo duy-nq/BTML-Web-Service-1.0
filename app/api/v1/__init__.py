@@ -16,6 +16,7 @@ from app.api.v1.api_maintenance import router as baotri_router
 from app.api.v1.api_payment import router as thanhtoan_router
 from app.api.v1.api_security import router as security_router
 from app.api.v1.api_mail import router as mail_router
+from app.api.v1.api_bill import router as hoadon_router
 
 router = APIRouter(prefix='/v1')
 router.include_router(login_router)
@@ -34,3 +35,4 @@ router.include_router(lkncc_router)
 router.include_router(maylanh_router)
 router.include_router(security_router)
 router.include_router(mail_router)
+router.include_router(hoadon_router)

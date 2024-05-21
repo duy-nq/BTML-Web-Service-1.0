@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Unicode
 from sqlalchemy.dialects.mssql import MONEY, DATETIME, UNIQUEIDENTIFIER as UUID
 from sqlalchemy.orm import relationship
@@ -58,6 +59,19 @@ class PhieuThongTin(Base):
 
     customer = relationship('KhachHang', back_populates='requests')
     service_detail = relationship('CTDV', back_populates='request')
+    bill = relationship('HoaDon', back_populates='request')
+
+class HoaDon(Base):
+    __tablename__ = 'HoaDon'
+
+    IdHD = Column(UUID, primary_key=True, default=uuid.uuid4)
+    IdPhieu = Column(UUID, ForeignKey('PhieuThongTin.IdPhieu'))
+    ThanhTien = Column(MONEY)
+    ThoiGian = Column(DATETIME, default=datetime.now())
+    NoiDung = Column(Unicode, nullable=True)
+
+    request = relationship('PhieuThongTin', back_populates='bill')
+
 
 class NhaCC(Base):
     __tablename__ = 'NhaCC'
@@ -120,6 +134,8 @@ class DichVu(Base):
     Ten = Column(Unicode)
     DonGia = Column(MONEY)
     KhoiLuong = Column(Float)
+    MoTa = Column(Unicode, nullable=True)
+    HinhAnh = Column(String, nullable=True)
 
     price_history = relationship('LSG_DV', back_populates='service')
     service_detail = relationship('CTDV', back_populates='service')
@@ -170,4 +186,4 @@ class DSLK(Base):
     SoLuong = Column(Integer, default=1)
 
     maintenance = relationship('BaoTri', back_populates='sp_list')
-    sp_supplier = relationship('LK_NCC', back_populates='sp_list')  
+    sp_supplier = relationship('LK_NCC', back_populates='sp_list')

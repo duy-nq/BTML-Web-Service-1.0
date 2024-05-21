@@ -25,7 +25,7 @@ async def read_ctdv_id(IdCTDV: str, db = Depends(get_db)):
 
 @router.post('/ctdv', response_model=CTDV)
 async def create_ctdv(service: CTDVCreate, db = Depends(get_db)):
-    newService = CTModel(IdPhieu=service.IdPhieu, IdDV=service.IdDV, IdML=service.IdML, Soluong=service.Soluong)
+    newService = CTModel(IdPhieu=service.IdPhieu, IdDV=service.IdDV, IdML=service.IdML, SoLuong=service.SoLuong)
     db.add(newService)
     db.commit()
     db.refresh(newService)

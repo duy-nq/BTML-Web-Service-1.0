@@ -6,7 +6,7 @@ from app.crud.crud_request import get_phieu_thong_tin
 from app.crud.crud_service import get_all_dich_vu
 from app.crud.crud_sp import get_all_linh_kien
 from app.crud.crud_sp_supplier import get_all_lk_ncc
-from app.schemas import TongTienDV, TongTienLK
+from app.schemas import Payment, TongTienDV, TongTienLK
 from app.core.db import get_db
 from app.vnpay import vnpay
 
@@ -119,18 +119,18 @@ def generate_secure_hash(data, secret_key):
     print(hashed.hexdigest().upper())
     return hashed.hexdigest().upper()
 
-@router.get('/payment/{id}', response_model=str)
-async def payment(TongA: float, tongB: float, noidung: str, ref: str, db = Depends(get_db)):
+@router.post('/payment/', response_model=str)
+async def payment(pay: Payment, db = Depends(get_db)):
     vnp = vnpay()
 
     vnp.requestData['vnp_Version'] = '2.1.0'
     vnp.requestData['vnp_Command'] = 'pay'
     vnp.requestData['vnp_TmnCode'] = VNPAY_TMN_CODE
-    vnp.requestData['vnp_Amount'] = 10000000
+    vnp.requestData['vnp_Amount'] = int(pay.ThanhTien*100)
     vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')    
     vnp.requestData['vnp_CurrCode'] = 'VND'
-    vnp.requestData['vnp_TxnRef'] = ref
-    vnp.requestData['vnp_OrderInfo'] = noidung
+    vnp.requestData['vnp_TxnRef'] = pay.IdPhieu + '-' + datetime.now().strftime('%Y%m%d%H%M%S')
+    vnp.requestData['vnp_OrderInfo'] = pay.NoiDung
     vnp.requestData['vnp_OrderType'] = 'billpayment'
     vnp.requestData['vnp_Locale'] = 'vn'
     vnp.requestData['vnp_IpAddr'] = '192.168.1.101'

@@ -131,7 +131,20 @@ class NhanVien(NhanVienCreate):
     service_detail: list[CTDV] = []
 
     class Config:
-        orm_mode = True    
+        orm_mode = True   
+
+class HoaDonCreate(BaseModel):
+    IdPhieu: UUID
+    ThanhTien: Decimal = Field(..., alias='ThanhTien')
+    NoiDung: str
+
+class HoaDon(HoaDonCreate):
+    IdHD: UUID
+    ThoiGian: datetime
+
+    class Config:
+        json_encoder = {Decimal: float}
+        orm_mode = True 
 
 class PhieuThongTinCreate(BaseModel):
     IdKH: UUID
@@ -148,6 +161,7 @@ class PhieuThongTin(TimeBase):
     TrangThai: bool
 
     service_detail: list[CTDV] = []
+    bill: list[HoaDon] = []
 
     class Config:
         orm_mode = True
@@ -203,6 +217,8 @@ class DichVu(BaseModel):
     Ten: str
     DonGia: Decimal = Field(..., alias='DonGia')
     KhoiLuong: float
+    MoTa: Optional[str]
+    HinhAnh: Optional[str]
 
     price_history: list[LSG_DV] = []
 
@@ -261,3 +277,8 @@ class KhachHangInDB(KhachHang):
 
 class EmailSchema(BaseModel):
     email: List[EmailStr]
+
+class Payment(BaseModel):
+    IdPhieu: str
+    ThanhTien: Decimal
+    NoiDung: str

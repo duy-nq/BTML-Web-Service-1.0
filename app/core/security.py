@@ -34,10 +34,8 @@ def get_user(db, username: str):
     attempt2 = get_nhan_vien_by_gmail(db, username)
 
     if attempt1:
-        print(attempt1)        
         return attempt1
     if attempt2:
-        print(attempt2)
         return attempt2
     
     return None
@@ -63,7 +61,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db = Depends(get_db)):
+async def get_current_user(token: str, db):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -71,7 +69,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db = D
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("Username")
+        username: str = payload.get("username")
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
