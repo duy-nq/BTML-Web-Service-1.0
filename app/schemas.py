@@ -173,6 +173,10 @@ class KhachHangLogin(BaseModel):
 class KhachHangCreate(KhachHangLogin):
     HoTen: str
 
+class UserPassword(BaseModel):
+    OldPassword: str
+    NewPassword: str
+
 class KhachHang(UserBase):
     IdKH: UUID
 
@@ -282,3 +286,7 @@ class Payment(BaseModel):
     IdPhieu: str
     ThanhTien: Decimal
     NoiDung: str
+
+class ResetPassword(BaseModel):
+    Email: str
+    Password: str

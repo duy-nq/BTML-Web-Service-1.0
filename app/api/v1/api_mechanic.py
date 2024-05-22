@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas import NhanVien, NhanVienSignUp
+from app.schemas import NhanVien, NhanVienSignUp, ResetPassword, UserPassword
 from app.models import NhanVien as NhanVienModel
 from app.core.db import get_db
-from app.crud.crud_mechanic import get_all_nhan_vien, get_nhan_vien, get_nhan_vien_by_cccd, get_nhan_vien_by_gmail
+from app.crud.crud_mechanic import get_all_nhan_vien, get_nhan_vien, get_nhan_vien_by_cccd, get_nhan_vien_by_gmail, get_password_by_id
 from sqlalchemy.exc import IntegrityError
 from app.core.config import settings
 
@@ -24,7 +24,7 @@ async def read_nhan_vien_id(IdNV: str, db = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Nhan vien khong ton tai")
     return nhanvien
 
-@router.post('/nhanvien/singup')
+@router.post('/nhanvien/signup')
 async def create_nhan_vien_singup(nhan_vien: NhanVienSignUp, db = Depends(get_db)):
     nhanvien = get_nhan_vien_by_gmail(db, Gmail=nhan_vien.Username)
 
@@ -75,6 +75,40 @@ async def update_nhan_vien(IdNV: str, nhan_vien: NhanVien, db = Depends(get_db))
         return nhanvien
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.put('/nhanvien/password/{id}')
+async def update_khach_hang_password(IdNV: str, new_password: UserPassword, db = Depends(get_db)):
+    old_password = get_password_by_id(db, IdNV=IdNV)
+
+    nhanvien = get_nhan_vien(db, IdNV=IdNV)
+    
+    if old_password:
+        if old_password != settings.sha256_hash(new_password.OldPassword):
+            return {"message": "Mat khau cu khong dung"}
+        newHash = settings.sha256_hash(new_password.NewPassword)
+        nhanvien.MatKhau = newHash
+
+        db.commit()
+        db.refresh(nhanvien)
+    else:
+        return {"message": "Thao tac khong thanh cong"} 
+    
+    return {"message": "Doi mat khau thanh cong"}
+
+@router.put('/nhanvien/reset/')
+async def reset_nhan_vien_password(reset: ResetPassword, db = Depends(get_db)):
+    nhanvien = get_nhan_vien_by_gmail(db, Gmail=reset.Email)
+    
+    if nhanvien:       
+        newHash = settings.sha256_hash(reset.Password)
+        nhanvien.MatKhau = newHash
+
+        db.commit()
+        db.refresh(nhanvien)
+    else:
+        raise HTTPException(status_code=404, detail="Nhan vien khong ton tai")
+    
+    return {"message": "Doi mat khau thanh cong"}
     
 @router.delete('/nhanvien/{id}', response_model=NhanVien)
 async def delete_nhan_vien(IdNV: str, db = Depends(get_db)):

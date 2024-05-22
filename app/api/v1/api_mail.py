@@ -34,4 +34,5 @@ async def send_mail(email: EmailSchema):
  
     fm = FastMail(settings.conf)
     await fm.send_message(message)
-    print(message)
+
+    return reset_password

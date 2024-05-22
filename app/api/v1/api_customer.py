@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
-from app.schemas import KhachHang, KhachHangCreate
+from app.schemas import KhachHang, KhachHangCreate, ResetPassword, UserPassword
 from app.models import KhachHang as KhachHangModel
 from app.core.db import get_db
-from app.crud.crud_customer import get_khach_hang, get_all_khach_hang, get_khach_hang_by_cccd, get_khach_hang_by_gmail
+from app.crud.crud_customer import get_khach_hang, get_all_khach_hang, get_khach_hang_by_cccd, get_khach_hang_by_gmail, get_password_by_id
 from app.core.config import settings
 
 router = APIRouter(tags=['KhachHang'])
@@ -24,7 +24,7 @@ async def read_khach_hang_id(IdKH: str, db = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Khach hang khong ton tai")
     return khachhang
 
-@router.post('/khachhang/singup')
+@router.post('/khachhang/signup')
 async def create_khach_hang_singup(khach_hang: KhachHangCreate, db = Depends(get_db)):
     khachhang = get_khach_hang_by_gmail(db, Gmail=khach_hang.Username)
 
@@ -74,6 +74,40 @@ async def update_khach_hang(IdKH: str, khach_hang: KhachHang, db = Depends(get_d
         return {"message": "Khach hang khong ton tai"}    
 
     return khach_hang
+
+@router.put('/khachhang/password/{id}')
+async def update_khach_hang_password(IdKH: str, new_password: UserPassword, db = Depends(get_db)):
+    old_password = get_password_by_id(db, IdKH=IdKH)
+
+    khachhang = get_khach_hang(db, IdKH=IdKH)
+    
+    if old_password:
+        if old_password != settings.sha256_hash(new_password.OldPassword):
+            return {"message": "Mat khau cu khong dung"}
+        newHash = settings.sha256_hash(new_password.NewPassword)
+        khachhang.MatKhau = newHash
+
+        db.commit()
+        db.refresh(khachhang)
+    else:
+        return {"message": "Khach hang khong ton tai"}  
+
+    return {"message": "Doi mat khau thanh cong"}
+
+@router.put('/khachhang/reset/')
+async def reset_khach_hang_password(reset: ResetPassword, db = Depends(get_db)):  
+    khachhang = get_khach_hang_by_gmail(db, Gmail=reset.Email)
+    
+    if khachhang:
+        newHash = settings.sha256_hash(reset.Password)
+        khachhang.MatKhau = newHash
+
+        db.commit()
+        db.refresh(khachhang)
+    else:
+        raise HTTPException(status_code=404, detail="Khach hang khong ton tai")
+
+    return {"message": "Reset mat khau thanh cong"}
 
 @router.delete('/khachhang/{id}', response_model=KhachHang)
 async def delete_khach_hang(IdKH: str, db = Depends(get_db)):
