@@ -1,6 +1,8 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
+from app.crud.crud_ac import get_may_lanh
+from app.crud.crud_service import get_dich_vu
 from app.schemas import PhieuThongTin, PhieuThongTinCreate
 from app.models import PhieuThongTin as PhieuThongTinModel
 from app.core.db import get_db
@@ -23,6 +25,24 @@ async def read_phieu_thong_tin_id(IdPhieu: str, db = Depends(get_db)):
     if request is None:
         raise HTTPException(status_code=404, detail="Phieu thong tin khong ton tai")
     return request
+
+@router.get('/phieuthongtin/chitiet/{id}')
+async def read_phieu_thong_tin_chitiet(IdPhieu: str, db = Depends(get_db)):
+    request = get_phieu_thong_tin(db, IdPhieu=IdPhieu)
+    
+    if request is None:
+        raise HTTPException(status_code=404, detail="Phieu thong tin khong ton tai")
+    
+    listOfSD = []
+    for sd in request.service_detail:
+        listOfSD.append({
+            'IdCT': sd.IdCTDV,
+            'LoaiDV': get_dich_vu(db, IdDV=sd.IdDV).Ten,
+            'LoaiML': get_may_lanh(db, IdML=sd.IdML).Ten,
+            'SoLuong': sd.SoLuong
+        })
+
+    return listOfSD
 
 @router.post('/phieuthongtin', response_model=PhieuThongTin)
 async def create_phieu_thong_tin(request: PhieuThongTinCreate, db = Depends(get_db)):
