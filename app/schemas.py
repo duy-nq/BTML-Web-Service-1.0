@@ -290,3 +290,10 @@ class Payment(BaseModel):
 class ResetPassword(BaseModel):
     Email: str
     Password: str
+
+class KhachHangHistory(BaseModel):
+    Id: int
+    DichVu: str
+    MayLanh: str
+    NhanVien: str
+    Diem: str

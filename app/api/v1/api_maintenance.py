@@ -24,6 +24,17 @@ async def read_bt_id(IdBT: str, db = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Bao tri khong ton tai")
     return baotri
 
+@router.get('/baotri/ctdv/{id}')
+async def read_bt_by_ctdv(IdCTDV: str, db = Depends(get_db)):
+    baotri = get_bt_by_ctdv(db, IdCTDV=IdCTDV)
+    
+    if baotri is None:
+        raise HTTPException(status_code=404, detail="Kiem tra lai IdCTDV")
+    elif len(baotri) == 0:
+        return {"message": "Khong co bao tri nao"}
+    
+    return baotri
+
 @router.post('/baotri', response_model=BaoTri)
 async def create_bt(maintenance: BaoTriCreate, db = Depends(get_db)):   
     try:

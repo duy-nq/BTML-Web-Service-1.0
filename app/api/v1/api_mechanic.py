@@ -1,4 +1,10 @@
+from collections import defaultdict
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
+from app.crud.crud_customer import get_khach_hang
+from app.crud.crud_request import get_phieu_thong_tin
+from app.crud.crud_sd import get_ctdv_by_phieu
+from app.crud.crud_service import get_dich_vu
 from app.schemas import NhanVien, NhanVienSignUp, ResetPassword, UserPassword
 from app.models import NhanVien as NhanVienModel
 from app.core.db import get_db
@@ -23,6 +29,63 @@ async def read_nhan_vien_id(IdNV: str, db = Depends(get_db)):
     if nhanvien is None:
         raise HTTPException(status_code=404, detail="Nhan vien khong ton tai")
     return nhanvien
+
+@router.get('/nhanvien/phieu/{id}')
+async def read_nhan_vien_phieu(IdNV: str, db = Depends(get_db)):
+    nhanvien = get_nhan_vien(db, IdNV=IdNV)
+
+    if nhanvien is None:
+        raise HTTPException(status_code=404, detail="Nhan vien khong ton tai")
+
+    listOfRequest = []
+    for request in nhanvien.service_detail:
+        phieu = get_phieu_thong_tin(db, IdPhieu=request.IdPhieu)
+
+        if phieu.TGBD != None and phieu.TGKT != None:
+            continue
+        
+        listOfRequest.append(
+            [
+                request.IdPhieu, 
+                phieu.LichHen, 
+                get_dich_vu(db, request.IdDV).Ten,
+                get_khach_hang(db, IdKH=phieu.IdKH).DiaChi,
+            ]
+        )
+
+    idphieu_services = defaultdict(list)
+
+    listOfRequest.sort(key=lambda x: x[1], reverse=False)
+
+    # Iterate through the data and populate the defaultdict
+    for item in listOfRequest:
+        idphieu = item[0]
+        thoi_gian = item[1]
+        service = item[2]
+        idphieu_services[idphieu].append(service)
+
+    # Create a list to hold the final JSON objects
+    final_data = []
+
+    unique_idphieu = set()
+
+    for item in listOfRequest:
+        idphieu = item[0]
+        # Check if IdPhieu is already processed
+        if idphieu not in unique_idphieu:
+            unique_idphieu.add(idphieu)
+            services = idphieu_services[idphieu]
+            thoi_gian = item[1]
+            dia_chi = item[3]
+            json_obj = {
+                "IdPhieu": idphieu,
+                "ListOfService": services,
+                "ThoiGian": thoi_gian,
+                "DiaChi": dia_chi
+            }
+            final_data.append(json_obj)
+
+    return final_data
 
 @router.post('/nhanvien/signup')
 async def create_nhan_vien_singup(nhan_vien: NhanVienSignUp, db = Depends(get_db)):

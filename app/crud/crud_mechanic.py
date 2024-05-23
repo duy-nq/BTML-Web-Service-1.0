@@ -18,3 +18,6 @@ def get_password_by_gmail(db: Session, Gmail: str):
 
 def get_password_by_id(db: Session, IdNV: str):
     return db.query(NhanVien).filter(NhanVien.IdNV == IdNV).first().MatKhau
+
+def get_phieu_by_id(db: Session, IdNV: str):
+    return db.query(NhanVien.service_detail).filter(NhanVien.IdNV == IdNV).all()

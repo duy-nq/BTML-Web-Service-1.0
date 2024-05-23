@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
-from app.schemas import KhachHang, KhachHangCreate, ResetPassword, UserPassword
+from app.crud.crud_ac import get_may_lanh
+from app.crud.crud_maintenance import get_bt_by_ctdv
+from app.schemas import KhachHang, KhachHangCreate, KhachHangHistory, ResetPassword, UserPassword
 from app.models import KhachHang as KhachHangModel
 from app.core.db import get_db
 from app.crud.crud_customer import get_khach_hang, get_all_khach_hang, get_khach_hang_by_cccd, get_khach_hang_by_gmail, get_password_by_id
@@ -23,6 +25,36 @@ async def read_khach_hang_id(IdKH: str, db = Depends(get_db)):
     if khachhang is None:
         raise HTTPException(status_code=404, detail="Khach hang khong ton tai")
     return khachhang
+
+@router.get('/khachhang/history/{id}')
+async def read_khach_hang_history(IdKH: str, db = Depends(get_db)):
+    khachhang = get_khach_hang(db, IdKH=IdKH)
+    
+    if khachhang is None:
+        raise HTTPException(status_code=404, detail="Khach hang khong ton tai")
+
+    listOfRequest = []
+    for request in khachhang.requests:
+        listOfRequest.append(request)
+
+    service_detail = []
+    for request in listOfRequest:
+        for detail in request.service_detail:
+            service_detail.append(detail.IdCTDV)
+
+    arr = []
+    for id in service_detail:
+        arr.append(get_bt_by_ctdv(db, IdCTDV=id))
+
+    return arr
+
+
+    
+
+
+
+
+
 
 @router.post('/khachhang/signup')
 async def create_khach_hang_singup(khach_hang: KhachHangCreate, db = Depends(get_db)):

@@ -52,18 +52,25 @@ async def create_lich_lam_viec_by_phieu(IdPhieu: str, db = Depends(get_db)):
 
     if len(phieu.service_detail) == 0:
         raise HTTPException(status_code=404, detail="Chua co nhan vien nao duoc phan cong lich lam viec")
+    
+    arr = []
 
     for ct in phieu.service_detail:
+        arr.append((ct.IdNV, phieu.LichHen, phieu.TGKT))
+
+    unique_arr = list(set(arr))
+
+    print(unique_arr)
+
+    for e in unique_arr:
         try:
-            newSchedule = LichLamViecModel(IdNV=ct.IdNV, TGBD=phieu.LichHen, TGKT=phieu.TGKT)
+            newSchedule = LichLamViecModel(IdNV=e[0], TGBD=phieu.LichHen, TGKT=phieu.TGKT)
             db.add(newSchedule)
             db.commit()
             db.refresh(newSchedule)
-        except Exception as e:
-            if 'UNIQUE KEY' in str(e):
+        except Exception as e:    
+            if "UNIQUE KEY" in str(e):
                 continue
-            else:
-                raise HTTPException(status_code=500, detail=str(e))
             
     raise HTTPException(status_code=200, detail="Tao lich lam viec thanh cong")
 
