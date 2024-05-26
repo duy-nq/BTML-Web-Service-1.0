@@ -23,18 +23,18 @@ async def read_lk_id(IdLK: str, db = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Linh kien khong ton tai")
     return linhkien
 
-@router.post('/dslk', response_model=DSLK)
+@router.post('/dslk')
 async def create_lk(sp_list: DSLKCreate, db = Depends(get_db)):
     try:
         linhkien = DSLKModel(IdBT = sp_list.IdBT, IdLKCC = sp_list.IdLKCC, SoLuong = sp_list.SoLuong)
         db.add(linhkien)
         db.commit()
         db.refresh(linhkien)
-        raise HTTPException(status_code=200, detail="Them linh kien vao danh sach thanh cong")
+        return {"message": "Them linh kien vao danh sach thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Them linh kien vao danh sach that bai, kiem tra lai thong tin nhap vao")
     
-@router.put('/dslk/{id}', response_model=DSLK)
+@router.put('/dslk/{id}')
 async def update_lk(id: str, sp_list: DSLKForAdmin, db = Depends(get_db)):
     linhkien = get_lk(db, IdDSLK=id)
     
@@ -46,7 +46,7 @@ async def update_lk(id: str, sp_list: DSLKForAdmin, db = Depends(get_db)):
         db.commit()
         db.refresh(linhkien)
 
-        raise HTTPException(status_code=200, detail="Cap nhat linh kien thanh cong")
+        return {"message": "Cap nhat linh kien thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Cap nhat linh kien that bai")
     
@@ -59,6 +59,6 @@ async def delete_lk(id: str, db = Depends(get_db)):
     try:
         db.delete(linhkien)
         db.commit()
-        raise HTTPException(status_code=200, detail="Xoa linh kien thanh cong")
+        return {"message": "Xoa linh kien thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Xoa linh kien that bai")

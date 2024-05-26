@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from app.crud.crud_sd import get_ctdv
-from app.schemas import BaoTri, BaoTriCreate, BaoTriForMechanic, BaoTriForUser
+from app.schemas import BaoTri, BaoTriCreate, BaoTriCreateDetail, BaoTriForMechanic, BaoTriForUser
 from app.models import BaoTri as BaoTriModel
 from app.core.db import get_db
 from app.crud.crud_maintenance import get_all_bt, get_bt, get_bt_by_ctdv
@@ -35,11 +35,13 @@ async def read_bt_by_ctdv(IdCTDV: str, db = Depends(get_db)):
     
     return baotri
 
-@router.post('/baotri', response_model=BaoTri)
+@router.post('/baotri')
 async def create_bt(maintenance: BaoTriCreate, db = Depends(get_db)):   
     try:
         ac_qty = get_ctdv(db, IdCTDV=maintenance.IdCTDV).SoLuong
         bt_qty = len(get_bt_by_ctdv(db, IdCTDV=maintenance.IdCTDV))
+
+        print(ac_qty, bt_qty)
     except AttributeError:
         raise HTTPException(status_code=404, detail="Dich vu nay chua duoc tao hoac nhap sai id")
 
@@ -51,7 +53,7 @@ async def create_bt(maintenance: BaoTriCreate, db = Depends(get_db)):
         db.add(baotri)
         db.commit()
         db.refresh(baotri)
-        raise HTTPException(status_code=200, detail="Them bao tri thanh cong")
+        return {"IdBT": baotri.IdBT, "message": "Them bao tri thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Them bao tri that bai")
     
@@ -66,7 +68,7 @@ async def update_bt_admin(id: str, maintenance: BaoTriForMechanic, db = Depends(
         db.commit()
         db.refresh(baotri)
 
-        raise HTTPException(status_code=200, detail="Cap nhat serial thanh cong")
+        return {"message": "Cap nhat serial thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Cap nhat serial that bai")
     
@@ -84,7 +86,7 @@ async def update_bt_user(id: str, maintenance: BaoTriForUser, db = Depends(get_d
         db.commit()
         db.refresh(baotri)
 
-        raise HTTPException(status_code=200, detail="Cap nhat diem thanh cong")
+        return {"message": "Cap nhat diem thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Cap nhat diem that bai")
     
@@ -97,6 +99,6 @@ async def delete_bt(id: str, db = Depends(get_db)):
     try:
         db.delete(baotri)
         db.commit()
-        raise HTTPException(status_code=200, detail="Xoa bao tri thanh cong")
+        return {"message": "Xoa bao tri thanh cong"}
     except IntegrityError:
         raise HTTPException(status_code=500, detail="Xoa bao tri that bai")

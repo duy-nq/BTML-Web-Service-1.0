@@ -76,6 +76,13 @@ class BaoTriCreate(BaseModel):
     Serial: str
     DiemDG: int
 
+class BaoTriCreateDetail(BaseModel):
+    IdCTDV: UUID
+    Serial: str
+    DiemDG: int
+
+    sp_list: list[DSLK] = []
+
 class BaoTriForMechanic(BaseModel):
     Serial: str
 
