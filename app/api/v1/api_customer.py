@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from app.crud.crud_ac import get_may_lanh
 from app.crud.crud_maintenance import get_bt_by_ctdv
+from app.crud.crud_service import get_dich_vu
 from app.schemas import KhachHang, KhachHangCreate, KhachHangHistory, ResetPassword, UserPassword
 from app.models import KhachHang as KhachHangModel
 from app.core.db import get_db
@@ -48,13 +49,42 @@ async def read_khach_hang_history(IdKH: str, db = Depends(get_db)):
 
     return arr
 
-
+@router.get('/khachhang/hoadon/{id}')
+async def read_khach_hang_hoadon(IdKH: str, db = Depends(get_db)):
+    khachhang = get_khach_hang(db, IdKH=IdKH)
     
+    if khachhang is None:
+        raise HTTPException(status_code=404, detail="Khach hang khong ton tai")
+
+    listOfRequest = []
+    for request in khachhang.requests:
+        listOfRequest.append(request)
+
+    data = []
+    for request in listOfRequest:
+        listDV = []
+        type = None
+        if len(request.service_detail[0].maintenance) == 0:
+            type = 0
+        else:
+            type = 1
+        for service in request.service_detail:
+            listDV.append(get_dich_vu(db, IdDV=service.IdDV).Ten)
+            type = len(service.maintenance)
+        
+        row = {
+            "IdPhieu": request.IdPhieu,
+            "LichHen": request.LichHen,
+            "DichVu": listDV,
+            "IsBT": type
+        }
+
+        data.append(row)
+
+    sorted_data = sorted(data, key=lambda x: x['IsBT'], reverse=True)
 
 
-
-
-
+    return sorted_data
 
 @router.post('/khachhang/signup')
 async def create_khach_hang_singup(khach_hang: KhachHangCreate, db = Depends(get_db)):

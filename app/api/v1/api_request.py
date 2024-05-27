@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from app.crud.crud_ac import get_may_lanh
 from app.crud.crud_service import get_dich_vu
-from app.schemas import PhieuThongTin, PhieuThongTinCreate
+from app.schemas import PhieuThongTin, PhieuThongTinCreate, TimeBase
 from app.models import PhieuThongTin as PhieuThongTinModel
 from app.core.db import get_db
 from app.crud.crud_request import get_phieu_thong_tin, get_all_phieu_thong_tin
@@ -82,3 +82,18 @@ async def update_phieu_thong_tin(IdPhieu: str, request: PhieuThongTin, db = Depe
         db.refresh(oldRequest)
 
         raise HTTPException(status_code=200, detail="Cap nhat phieu thong tin thanh cong")
+    
+@router.put('/phieuthongtin/thoigian/{id}')
+async def update_phieu_thong_tin_thoigian(IdPhieu: str, request: TimeBase, db = Depends(get_db)):
+    oldRequest = get_phieu_thong_tin(db, IdPhieu=IdPhieu)
+
+    if oldRequest is None:
+        raise HTTPException(status_code=404, detail="Phieu thong tin khong ton tai")
+    else:
+        oldRequest.TGBD = request.TGBD
+        oldRequest.TGKT = request.TGKT
+
+        db.commit()
+        db.refresh(oldRequest)
+
+        return {"message": "Cap nhat thoi gian thanh cong"}
